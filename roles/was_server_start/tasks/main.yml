@@ -1,0 +1,43 @@
+---
+- name: Verify the WAS applications JVMs Running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_server_start__was_install_location }}"/profiles/"{{ was_server_start__node_profile_name }}"/logs/"{{ item }}/{{ item }}".pid) > /dev/null
+  register: server_is_running
+  with_items: "{{ was_server_start__servers }}"
+  changed_when: server_is_running.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " WAS applications JVMs not Running servers list- {{ item.item }}"
+  when: item.rc != 0
+  with_items: "{{ server_is_running.results }}"
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " WAS applications JVMs Running servers list- {{ item.item }}"
+  when: item.rc == 0
+  with_items: "{{ server_is_running.results }}"
+
+- name: "Start Servers if it's not running"
+  ansible.builtin.command: "{{ was_server_start__was_install_location }}/profiles/{{ was_server_start__node_profile_name }}/bin/startServer.sh {{ item.item }}"
+  register: server_start
+  changed_when: server_start.rc == 0
+  when: item.rc != 0
+  with_items: "{{ server_is_running.results }}"
+
+- name: Wait 30 seconds for SERVER to activate
+  ansible.builtin.pause:
+    seconds: 30
+
+- name: Verify the WAS applications JVMs Running or not after script execute
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_server_start__was_install_location }}"/profiles/"{{ was_server_start__node_profile_name }}"/logs/"{{ item }}/{{ item }}".pid) > /dev/null
+  register: server_is_running_after
+  with_items: "{{ was_server_start__servers }}"
+  changed_when: server_is_running_after.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " WAS applications JVMs started successfully "

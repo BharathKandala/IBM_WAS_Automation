@@ -1,0 +1,4 @@
+---
+was_nodeagent_sync__was_install_location: "{{ was_install_location  | default('/usr/WebSphere9/AppServer') }}"
+was_nodeagent_sync__node_profile_name: "{{ inventory_hostname_short }}"
+was_nodeagent_sync__dmgr_profile_name: "{{ inventory_hostname_short }}Dmgr"

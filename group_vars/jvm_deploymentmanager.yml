@@ -1,0 +1,20 @@
+---
+was_base_path: "/usr/WebSphere9/AppServer"
+was_username: "usb-cg3-qa-wasadmin"
+was_password: "Welcome2ibm"
+bin_directory: "{{ was_base_path }}/profiles/{{ profile_name }}/bin"
+response_file: "{{ bin_directory }}/was_config_dmgr_jvm.py"
+template_file: "was_config_dmgr_jvm.py.j2"
+success_file: "{{ bin_directory }}/was-dmgr-config-jvm.success"
+was_owner: "usb-cg3-qa-wasadmin"
+was_group: "usb-was-grp"
+# DMGR JVM Arguments
+server_name: dmgr
+initialHeapSize: "256"
+maximumHeapSize: "2048"
+genericJvmArguments: "-Djava.awt.headless=true"
+debugArguments: "-Djava.compiler=NONE"
+classpath: "classpath111"
+nodename: "sc-q-autwas02DmgrNode"
+
+command_line_arg: "{{ server_name }} {{ initialHeapSize }} {{ maximumHeapSize }} {{ genericJvmArguments }} {{ debugArguments }} {{ classpath }} {{ nodename }}"

@@ -1,0 +1,4 @@
+---
+was_server_status__was_install_location: "{{ was_install_location  | default('/usr/WebSphere9/AppServer') }}"
+  #was_server_status__node_profile_name: "{{ inventory_hostname_short }}"
+was_server_status__node_profile_name: "{{ profile_name | default(inventory_hostname_short) }}"

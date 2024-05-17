@@ -1,0 +1,41 @@
+---
+- name: Verify the nodeagent is running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_nodeagent_start__was_install_location }}"/profiles/"{{ was_nodeagent_start__node_profile_name }}"/logs/nodeagent/nodeagent.pid) > /dev/null
+  register: nodeagent_is_running
+  changed_when: nodeagent_is_running.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " Node agent is not running "
+  when: nodeagent_is_running.rc != 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " Node agent is running "
+  when: nodeagent_is_running.rc == 0
+
+- name: "Start Node Agent if it's running"
+  when: nodeagent_is_running.rc != 0
+  ansible.builtin.command: "{{ was_nodeagent_start__was_install_location }}/profiles/{{ was_nodeagent_start__node_profile_name }}/bin/startNode.sh"
+  register: nodeagnt_start
+  changed_when: nodeagnt_start.rc == 0
+  failed_when: nodeagnt_start.rc != 0
+
+- name: Wait 60 seconds for nodeagent to activate
+  ansible.builtin.pause:
+    seconds: 60
+  when: (nodeagnt_start.rc is defined) and (nodeagnt_start.rc == 0)
+
+- name: Verify the nodeagent is running or not after running the script
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_nodeagent_start__was_install_location }}"/profiles/"{{ was_nodeagent_start__node_profile_name }}"/logs/nodeagent/nodeagent.pid) > /dev/null
+  register: nodeagent_is_running_after
+  changed_when: nodeagent_is_running_after.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " Node agent is started successfully "
+  when: nodeagent_is_running_after.rc == 0

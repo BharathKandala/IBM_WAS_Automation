@@ -1,0 +1,43 @@
+---
+- name: "Verifiy if Profile already exists"
+  ansible.builtin.stat:
+    path: "{{ was_base_path }}/profiles/{{ profile_name }}"
+  register: profile_already_exists
+
+- name: Verify if pid file
+  ansible.builtin.shell: ps -p `cat "{{ was_base_path }}/profiles/{{ profile_name }}/logs/dmgr/dmgr.pid"`
+  register: dmgr_is_running
+  ignore_errors: true
+  changed_when: dmgr_is_running.rc != 0
+
+- name: "Verifiy if LDAP is already configured"
+  ansible.builtin.stat:
+    path: "{{ response_file }}"
+  register: ldap_already_configured
+  when: profile_already_exists.stat.exists
+
+- name: "Generate Response file"
+  ansible.builtin.template:
+    src: "{{ template_file }}"
+    dest: "{{ response_file }}"
+    owner: "{{ was_owner }}"
+    group: "{{ was_group }}"
+    mode: '0755'
+  when: not ldap_already_configured.stat.exists
+
+- name: "Configure LDAP"
+  ansible.builtin.command: >
+    sh wsadmin.sh -lang jython -username {{ was_username }} -password {{ was_password }} -f {{ response_file }}
+  args:
+    chdir: "{{ bin_dir }}"
+  register: config_ldap_reg
+  changed_when: config_ldap_reg.rc == 0
+
+- name: Print the result of LDAP Configuration
+  ansible.builtin.debug:
+    msg: "{{ config_ldap_reg }}"
+
+- name: "Purge the response file"
+  ansible.builtin.file:
+    path: "{{ response_file }}"
+    state: absent

@@ -1,0 +1,36 @@
+---
+- name: Verify the dmgr Running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_stop_dmgr__was_install_location }}"/profiles/"{{ was_stop_dmgr__node_profile_name }}"Dmgr/logs/dmgr/dmgr.pid) > /dev/null
+  register: dmgr_is_running
+  changed_when: dmgr_is_running.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " DMGR is not running "
+  when: dmgr_is_running.rc != 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " DMGR is running"
+  when: dmgr_is_running.rc == 0
+
+
+- name: "Stop Dmgr"
+  when: dmgr_is_running.rc == 0
+  ansible.builtin.command: "{{ was_stop_dmgr__was_install_location }}/profiles/{{ was_stop_dmgr__node_profile_name }}Dmgr/bin/stopManager.sh -username {{ was_username }} -password {{ was_password }}"
+  register: dmgr_stop
+  changed_when: dmgr_stop.rc == 0
+
+- name: Verify the dmgr Running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_stop_dmgr__was_install_location }}"/profiles/"{{ was_stop_dmgr__node_profile_name }}"Dmgr/logs/dmgr/dmgr.pid) > /dev/null
+  register: dmgr_is_running_after
+  changed_when: dmgr_is_running_after.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " DMGR is stopped successfully "
+  when: dmgr_is_running_after.rc != 0

@@ -1,0 +1,31 @@
+# Importing necessary packages
+import sys
+import os
+
+# Function to update JVM heap size
+def update_jvm_heap(server_name, initialHeapSize, maximumHeapSize, genericJvmArguments, debugArguments, classpath, nodename):
+  # Get server ID
+  server_id = AdminConfig.getid('/Server:' + server_name + '/')
+  # Get JVM
+  jvm= AdminConfig.list('JavaVirtualMachine', server_id)
+  
+  AdminConfig.modify(jvm, [['initialHeapSize', initialHeapSize], ['maximumHeapSize', maximumHeapSize], ['genericJvmArguments', genericJvmArguments], ['debugMode', 'true'], ['debugArgs', debugArguments]])
+  print("Debug From Jython")
+  AdminTask.setJVMProperties('[-nodeName ' + nodename + ' -serverName ' + server_name + ' -classpath ' + classpath + ']')
+  #Save changes
+  AdminConfig.save()
+  print("JVM Configuration updated successfully.")
+
+# Example usage
+server_name = sys.argv[0]
+initialHeapSize = sys.argv[1]
+maximumHeapSize = sys.argv[2]
+genericJvmArguments = sys.argv[3]
+debugArguments = sys.argv[4]
+classpath = sys.argv[5]
+nodename = sys.argv[6]
+
+# Call function to update JVM heap size
+update_jvm_heap(server_name, initialHeapSize, maximumHeapSize, genericJvmArguments, debugArguments, classpath, nodename)
+
+#sh wsadmin.sh -lang jython -username "usb-cg3-qa-wasadmin" -password "Welcome2ibm" -f /home/usb-cg3-qa-wasadmin/jython_scripts/configJVM_fun.py nddeagent 512 1024 "-Djava.awt.headless=true" "-Djava.compiler=NONE" "classpath1" "nodename"

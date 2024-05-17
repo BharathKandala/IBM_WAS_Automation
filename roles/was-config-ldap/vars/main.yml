@@ -1,0 +1,23 @@
+---
+profile_name: "{{ inventory_hostname_short }}Dmgr" # " "{{ profile_name | default('Dmgr') }}"
+was_base_path: "/usr/WebSphere9/AppServer"
+default_nodename: "{{ inventory_hostname_short }}-node"
+was_nodename: "{{ was_nodename | default(default_nodename) }}"
+was_username: "usb-cg3-qa-wasadmin"
+was_password: "Welcome2ibm"
+bin_directory: "{{ was_base_path }}/profiles/{{ profile_name }}/bin"
+response_file: "{{ bin_directory }}/was_config_ldap.py"
+template_file: "was_config_ldap.py.j2"
+success_file: "{{ bin_directory }}/was-dmgr-config-ldap.success"
+was_owner: "usb-cg3-qa-wasadmin"
+was_group: "usb-was-grp"
+
+###### LDAP Details ######
+# cr7u9ba0oj9o3f2.vptocsdev.net
+
+ldap_server: owgb8qwmcd9ug9n.vptocsdev.net
+ldap_alias: ldapserver
+ldap_repo: viewpointeLDAP
+ldap_bind_user: vpt-was-dev-bind@vptocsdev.net # vpt-was-bind-testirp@vptarchive.org
+ldap_bind_pass: '#EDC4rfv%TGB' # ONLY FOR DEMO PURPOSE
+ldap_realm: DC=vptocsdev1,DC=net1

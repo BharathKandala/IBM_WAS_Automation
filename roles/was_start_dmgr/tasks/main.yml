@@ -1,0 +1,41 @@
+---
+- name: Verify the dmgr Running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_start_dmgr__was_install_location }}"/profiles/"{{ was_start_dmgr__node_profile_name }}"/logs/dmgr/dmgr.pid) > /dev/null
+  register: dmgr_is_running
+  changed_when: dmgr_is_running.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " DMGR is not running "
+  when: dmgr_is_running.rc != 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " DMGR is running "
+  when: dmgr_is_running.rc == 0
+
+- name: "Start Dmgr"
+  ansible.builtin.command: "{{ was_start_dmgr__was_install_location }}/profiles/{{ was_start_dmgr__node_profile_name }}/bin/startManager.sh -username {{ was_username }} -password {{ was_password }}"
+  register: dmgr_start
+  changed_when: dmgr_start.rc == 0
+  failed_when: dmgr_start.rc != 0
+  when: dmgr_is_running.rc != 0
+
+- name: Verify the dmgr Running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_start_dmgr__was_install_location }}"/profiles/"{{ was_start_dmgr__node_profile_name }}"/logs/dmgr/dmgr.pid) > /dev/null
+  register: dmgr_is_running_after
+  changed_when: dmgr_is_running_after.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: " DMGR is started successfully "
+  when: dmgr_is_running_after.rc == 0
+
+- name: Wait 60 seconds for DMGR to activate
+  ansible.builtin.pause:
+    seconds: 60
+  when: (dmgr_start.rc is defined) and (dmgr_start.rc == 0)

@@ -1,0 +1,9 @@
+---
+- name: "Checking the WAS applications JVMs Running Status"
+  ansible.builtin.command: "{{ was_dmgr_status__was_install_location }}/profiles/{{ was_dmgr_status__node_profile_name }}/bin/serverStatus.sh -all -username {{ was_username }} -password {{ was_password }}"
+  register: was_dmgr_status
+  changed_when: was_dmgr_status.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: "{{ was_dmgr_status.stdout }}"

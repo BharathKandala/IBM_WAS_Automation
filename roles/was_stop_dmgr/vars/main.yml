@@ -1,0 +1,3 @@
+---
+was_stop_dmgr__node_profile_name: "{{ inventory_hostname_short }}Dmgr"
+was_stop_dmgr__was_install_location: "{{ was_install_location  | default('/usr/WebSphere9/AppServer') }}"

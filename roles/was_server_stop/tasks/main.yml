@@ -1,0 +1,31 @@
+---
+- name: Verify the WAS applications JVMs Running or not
+  ignore_errors: true
+  ansible.builtin.shell: |
+    ps -p $(cat "{{ was_server_stop__was_install_location }}"/profiles/"{{ was_server_stop__node_profile_name }}"/logs/"{{ item }}"/"{{ item }}".pid) > /dev/null
+  register: server_is_running
+  with_items: "{{ was_server_stop__servers }}"
+  changed_when: server_is_running.rc == 0
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: "{{ item.item }} is not running"
+  when: item.rc != 0
+  with_items: "{{ server_is_running.results }}"
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: "{{item.item}} is running"
+  when: item.rc == 0
+  with_items: "{{ server_is_running.results }}"
+
+- name: "Stop Servers if it's running"
+  ansible.builtin.command: "{{ was_server_stop__was_install_location }}/profiles/{{ was_server_stop__node_profile_name }}/bin/stopServer.sh {{ item.item }} -username {{ was_username }} -password {{ was_password }}"
+  register: server_stop
+  changed_when: server_stop.rc == 0
+  when: item.rc == 0
+  with_items: "{{ server_is_running.results }}"
+
+- name: Print the msg
+  ansible.builtin.debug:
+    msg: "WAS applications JVMs stopped successfully"
