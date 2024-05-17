@@ -1,0 +1,42 @@
+---
+- name: Perform WAS tasks
+  hosts: all
+  become: true
+  become_user: "usb-cg3-qa-wasadmin"
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: Stop the application server
+      ansible.builtin.include_role:
+        name: was_server_stop
+      when: 'action == "application_server_stop" or action == "stop_sequence" or action == "restart"'
+
+    - name: Stop the Nodeagent
+      ansible.builtin.include_role:
+        name: was_nodeagent_stop
+      when: 'action == "nodeagent_stop" or action == "stop_sequence" or action == "restart"'
+
+    - name: Stop the Deploying Manager
+      ansible.builtin.include_role:
+        name: was_stop_dmgr
+      when: 'action == "dmgr_stop"  or action == "stop_sequence" or action == "restart"'
+
+    - name: Start the Deploying Manager
+      ansible.builtin.include_role:
+        name: was_start_dmgr
+      when: 'action == "dmgr_start"  or action == "start_sequence" or action == "restart"'
+
+    - name: Start the Nodeagent
+      ansible.builtin.include_role:
+        name: was_nodeagent_start
+      when: 'action == "nodeagent_start" or action == "start_sequence" or action == "restart"'
+
+    - name: Start the application server
+      ansible.builtin.include_role:
+        name: was_server_start
+      when: 'action == "application_server_start" or action == "start_sequence" or action == "restart"'
+
+    - name: Sync the nodes
+      ansible.builtin.include_role:
+        name: was_nodeagent_sync
+      when: action == "sync_nodeagent"

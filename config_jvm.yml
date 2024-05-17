@@ -1,0 +1,7 @@
+---
+- name: "JVM Configuration using Jython Scripts"
+  hosts: all
+  become: true
+  become_user: usb-cg3-qa-wasadmin
+  roles:
+    - was-config-jvm

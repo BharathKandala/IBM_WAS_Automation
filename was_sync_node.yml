@@ -1,0 +1,12 @@
+---
+- name: Perform WAS Deployment sync nodes
+  hosts: all
+  become: true
+  become_user: "usb-cg3-qa-wasadmin"
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: Status of dmgr
+      ansible.builtin.include_role:
+        name: was_nodeagent_sync
+      when: nodeagent_sync == "start"

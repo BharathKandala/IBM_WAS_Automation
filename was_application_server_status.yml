@@ -1,0 +1,12 @@
+---
+- name: Perform WAS Deployment manager status task
+  hosts: all
+  become: true
+  become_user: "usb-cg3-qa-wasadmin"
+  vars_files:
+    - vars/main.yml
+  tasks:
+    - name: Status of the application servers
+      ansible.builtin.include_role:
+        name: was_server_status
+      when: app_status == "application_server_status"

@@ -1,0 +1,2 @@
+[jvm_deploymentmanager]
+sc-q-autwas02 ansible_host=10.10.120.231 ansible_ssh_user=bharath.kandala-ibm ansible_ssh_pass=JoelPrince@27 ansible_ssh_extra_args='-o StrictHostKeyChecking=no'

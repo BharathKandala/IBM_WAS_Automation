@@ -1,0 +1,22 @@
+---
+- name: Perform WAS LDAP Configuration steps
+  hosts: all
+  become: true
+  become_user: "usb-cg3-qa-wasadmin"
+  vars_files:
+    - ../../vars/main.yml
+  pre_tasks:
+    - name: Set fact for Hostname
+      ansible.builtin.set_fact:
+        was_server_hostname: "{{ ansible_hostname }}"
+        was_server_inventory_hostname: "{{ inventory_hostname_short }}"
+
+  roles:
+    - { role: was-config-ldap }
+    - { role: was_server_stop }
+    - { role: was_nodeagent_stop }
+    - { role: was_stop_dmgr }
+    - { role: was_start_dmgr }
+    - { role: was_nodeagent_start }
+    - { role: was_server_start }
+
